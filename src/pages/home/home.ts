@@ -1,5 +1,7 @@
-import { Component } from '@angular/core';
+import { Component, ViewChild } from '@angular/core';
 import { NavController } from 'ionic-angular';
+import { VisualizerComponent } from '../../components/visualizer/visualizer';
+import * as d3 from 'd3';
 
 @Component({
   selector: 'page-home',
@@ -7,51 +9,28 @@ import { NavController } from 'ionic-angular';
 })
 export class HomePage {
 
-  arrayForSort = " ";
-  arraySorted = false;
-  sortedArray: any;
-  constructor(public navCtrl: NavController) {
+  // Generator conf
+  count:number = 15;
 
+  @ViewChild(VisualizerComponent)
+  visualizer: VisualizerComponent;
+
+  input:string = '';
+  animating: boolean = false;
+
+  constructor(public navCtrl: NavController) { }
+
+  randomize() {
+    this.input = d3.shuffle(d3.range(0, this.count)).join(', ');
   }
 
-  mergeSort (arr) {
-    if (arr.length === 1) {
-      // return once we hit an array with a single item
-      return arr
-    }
-  
-    const middle = Math.floor(arr.length / 2) // get the middle item of the array rounded down
-    const left = arr.slice(0, middle) // items on the left side
-    const right = arr.slice(middle) // items on the right side
-  
-    return this.merge(
-      this.mergeSort(left),
-      this.mergeSort(right)
-    )
-  }
+  animate() {
+    this.animating = true;
 
-  merge (left, right) {
-    let result = []
-    let indexLeft = 0
-    let indexRight = 0
-  
-    while (indexLeft < left.length && indexRight < right.length) {
-      if (left[indexLeft] < right[indexRight]) {
-        result.push(left[indexLeft])
-        indexLeft++
-      } else {
-        result.push(right[indexRight])
-        indexRight++
-      }
-    }
-  
-    return result.concat(left.slice(indexLeft)).concat(right.slice(indexRight))
-  }
-  sortArray(){
-    this.arraySorted = false;
-    let prepareArrayForSorting = this.arrayForSort.split("");
-    this.sortedArray = this.mergeSort(prepareArrayForSorting);
-    this.arraySorted = true;
-  }
+    let items = this.input.split(',').map(e => parseInt(e));
 
+    this.visualizer.animate(items);
+
+    this.animating = false;
+  }
 }
